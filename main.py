@@ -83,7 +83,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'logged_in' not in session:
-            return redirect(url_for('login'))
+            return redirect('login')
         return f(*args, **kwargs)
     return decorated_function
 
@@ -93,7 +93,7 @@ def has_session(f):
         if 'session_id' in session:
             user_auth = UserAuth()
             if user_auth.validate_session(session['session_id']):
-                return redirect(url_for('dashboard'))
+                return redirect('dashboard')
         return f(*args, **kwargs)
     return decorated_function
 
@@ -114,7 +114,7 @@ def login():
             print(f"Session ID: {session_id}")
             session['logged_in'] = True
             session['session_id'] = session_id
-            return redirect(url_for('dashboard'))
+            return redirect('dashboard')
         flash('Invalid credentials')
     return render_template('login.html', site_url=site_url)
 
@@ -126,7 +126,7 @@ def register():
         password = request.form.get('password')
         user_auth = UserAuth()
         if user_auth.register_user(username, password):
-            return redirect(url_for('login'))
+            return redirect('login')
         flash('User already exists')
     return render_template('register.html', site_url=site_url)
 
@@ -221,7 +221,7 @@ def delete_task(job_id):
         flash('Task deleted successfully')
     except Exception as e:
         flash(f'Error deleting task: {str(e)}')
-    return redirect(url_for('dashboard'))
+    return redirect('dashboard')
 
 @app.route('/get_task_details/<job_id>')
 @login_required
