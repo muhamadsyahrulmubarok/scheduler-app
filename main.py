@@ -133,9 +133,9 @@ def register():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect('login')
 
-@app.route('/')
+@app.route('/dashboard')
 @login_required
 def dashboard():
     jobs = []
@@ -208,7 +208,7 @@ def add_task():
         # Store job data in Redis
         redis_client.set(f"job:{job_id}", json.dumps(job_data))
         flash('Task added successfully')
-        return redirect(url_for('dashboard'))
+        return redirect('dashboard')
 
     return render_template('add_task.html', site_url=site_url)
 
