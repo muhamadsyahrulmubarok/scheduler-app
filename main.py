@@ -115,7 +115,7 @@ def login():
             session['session_id'] = session_id
             return redirect(url_for('dashboard'))
         flash('Invalid credentials')
-    return render_template('login.html')
+    return render_template('login.html', base_url=base_url)
 
 @app.route('/register', methods=['GET', 'POST'])
 @has_session
@@ -127,7 +127,7 @@ def register():
         if user_auth.register_user(username, password):
             return redirect(url_for('login'))
         flash('User already exists')
-    return render_template('register.html')
+    return render_template('register.html', base_url=base_url)
 
 @app.route('/logout')
 def logout():
@@ -144,7 +144,7 @@ def dashboard():
             'name': job.name,
             'next_run': job.next_run_time
         })
-    return render_template('dashboard.html', jobs=jobs)
+    return render_template('dashboard.html', jobs=jobs, base_url=base_url)
 
 @app.route('/add_task', methods=['GET', 'POST'])
 @login_required
@@ -209,7 +209,7 @@ def add_task():
         flash('Task added successfully')
         return redirect(url_for('dashboard'))
 
-    return render_template('add_task.html')
+    return render_template('add_task.html', base_url=base_url)
 
 @app.route('/delete_task/<job_id>')
 @login_required
