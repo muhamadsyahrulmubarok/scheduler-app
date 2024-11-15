@@ -42,7 +42,8 @@ db_config = {
     'user': os.getenv('NPD_DB_USER'),
     'password': os.getenv('NPD_DB_PASS'),
     'host': os.getenv('NPD_DB_HOST'),
-    'database': os.getenv('NPD_DB_NAME')
+    'database': os.getenv('NPD_DB_NAME'),
+    'auth_plugin': 'mysql_native_password'
 }
 
 db = mysql.connector.connect(**db_config)
