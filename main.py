@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 base_url = os.getenv('BASE_URL')
+if base_url and not base_url.startswith('/'):
+    base_url = f'/{base_url.strip("/")}'
+
 
 # load login.py
 from login import UserAuth
