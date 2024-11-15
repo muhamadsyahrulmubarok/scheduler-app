@@ -1,0 +1,189 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Dashboard - Task Scheduler</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container mt-4">
+			<div class="d-flex justify-content-between align-items-center mb-4">
+				<h2>Task Dashboard</h2>
+				<div>
+					<a href="{{ url_for('add_task') }}" class="btn btn-primary"
+						>Add New Task</a
+					>
+					<a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+				</div>
+			</div>
+
+			{% with messages = get_flashed_messages() %} {% if messages %} {% for
+			message in messages %}
+			<div class="alert alert-info">{{ message }}</div>
+			{% endfor %} {% endif %} {% endwith %}
+
+			<div class="card">
+				<div class="card-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Task ID</th>
+								<th>Name</th>
+								<th>Next Run</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for job in jobs %}
+							<tr>
+								<td>{{ job.id }}</td>
+								<td>{{ job.name }}</td>
+								<td>{{ job.next_run }}</td>
+								<td>
+									<button
+										class="btn btn-info btn-sm me-2"
+										onclick="showTaskDetails('{{ job.id }}')"
+										data-bs-toggle="modal"
+										data-bs-target="#taskModal"
+									>
+										<i class="fas fa-eye"></i> View
+									</button>
+									<a
+										href="{{ url_for('delete_task', job_id=job.id) }}"
+										class="btn btn-danger btn-sm"
+										onclick="return confirm('Are you sure you want to delete this task?')"
+									>
+										<i class="fas fa-trash"></i> Delete
+									</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- Task Details Modal -->
+		<div
+			class="modal fade"
+			id="taskModal"
+			tabindex="-1"
+			aria-labelledby="taskModalLabel"
+			aria-hidden="true"
+		>
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="taskModalLabel">Task Details</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"
+						></button>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-6">
+								<h6>Basic Information</h6>
+								<table class="table table-sm">
+									<tr>
+										<th>Task ID:</th>
+										<td id="taskId"></td>
+									</tr>
+									<tr>
+										<th>Type:</th>
+										<td id="taskType"></td>
+									</tr>
+									<tr>
+										<th>Schedule Type:</th>
+										<td id="scheduleType"></td>
+									</tr>
+									<tr>
+										<th>Created By:</th>
+										<td id="createdBy"></td>
+									</tr>
+									<tr>
+										<th>Created At:</th>
+										<td id="createdAt"></td>
+									</tr>
+								</table>
+							</div>
+							<div class="col-md-6">
+								<h6>Schedule Information</h6>
+								<table class="table table-sm">
+									<tr>
+										<th>Next Run:</th>
+										<td id="nextRun"></td>
+									</tr>
+									<tr>
+										<th>Last Run:</th>
+										<td id="lastRun"></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div class="mt-3">
+							<h6>Task Configuration</h6>
+							<pre id="taskConfig" class="bg-light p-3 rounded"></pre>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-bs-dismiss="modal"
+						>
+							Close
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script>
+			async function showTaskDetails(jobId) {
+				try {
+					const response = await fetch(`/get_task_details/${jobId}`);
+					const data = await response.json();
+
+					if (response.ok) {
+						// Update modal content
+						document.getElementById("taskId").textContent = data.id;
+						document.getElementById("taskType").textContent = data.type;
+						document.getElementById("scheduleType").textContent =
+							data.schedule_type;
+						document.getElementById("createdBy").textContent = data.created_by;
+						document.getElementById("createdAt").textContent = new Date(
+							data.created_at
+						).toLocaleString();
+						document.getElementById("nextRun").textContent = data.next_run;
+						document.getElementById("lastRun").textContent = data.last_run;
+
+						// Format task configuration
+						let configDisplay = "";
+						if (data.type === "url") {
+							configDisplay = `URL: ${data.url}\nMethod: ${data.method}`;
+						} else if (data.type === "custom") {
+							configDisplay = `Function: ${data.function}\nParameters: ${data.params}`;
+						}
+						document.getElementById("taskConfig").textContent = configDisplay;
+					} else {
+						alert("Error loading task details: " + data.error);
+					}
+				} catch (error) {
+					alert("Error loading task details: " + error.message);
+				}
+			}
+		</script>
+	</body>
+</html>
