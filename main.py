@@ -13,6 +13,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+base_url = os.getenv('BASE_URL')
+
 # load login.py
 from login import UserAuth
 
@@ -92,7 +94,7 @@ def has_session(f):
     return decorated_function
 
 # Routes
-@app.route('/login', methods=['GET', 'POST'])
+@app.route(f'{base_url}/login', methods=['GET', 'POST'])
 @has_session
 def login():
     if request.method == 'POST':
@@ -112,7 +114,7 @@ def login():
         flash('Invalid credentials')
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route(f'{base_url}/register', methods=['GET', 'POST'])
 @has_session
 def register():
     if request.method == 'POST':
@@ -124,12 +126,12 @@ def register():
         flash('User already exists')
     return render_template('register.html')
 
-@app.route('/logout')
+@app.route(f'{base_url}/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route('/')
+@app.route(f'{base_url}/')
 @login_required
 def dashboard():
     jobs = []
@@ -141,7 +143,7 @@ def dashboard():
         })
     return render_template('dashboard.html', jobs=jobs)
 
-@app.route('/add_task', methods=['GET', 'POST'])
+@app.route(f'{base_url}/add_task', methods=['GET', 'POST'])
 @login_required
 def add_task():
     if request.method == 'POST':
@@ -206,7 +208,7 @@ def add_task():
 
     return render_template('add_task.html')
 
-@app.route('/delete_task/<job_id>')
+@app.route(f'{base_url}/delete_task/<job_id>')
 @login_required
 def delete_task(job_id):
     try:
@@ -217,7 +219,7 @@ def delete_task(job_id):
         flash(f'Error deleting task: {str(e)}')
     return redirect(url_for('dashboard'))
 
-@app.route('/get_task_details/<job_id>')
+@app.route(f'{base_url}/get_task_details/<job_id>')
 @login_required
 def get_task_details(job_id):
     try:
